@@ -161,7 +161,7 @@ events_yday = find_AR_nmb_sol_mon(events_yday, srs_yday)
 
 
 srs_today = srs_today.sort_values('NMBR').reset_index(drop = True).replace(np.nan, '', regex = True)
-srs_yday = srs_yday.sort_values('NMBR').reset_index(drop = True)
+srs_yday = srs_yday.sort_values('NMBR').reset_index(drop = True).replace(np.nan, '', regex = True)
 
 print(events_today.sort_values('NOAA_NBR'))
 
