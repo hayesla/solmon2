@@ -6,7 +6,7 @@ import pandas as pd
 from rot_location2 import rot_location
 
 
-date_search = datetime.datetime.strptime('2014-10-24 23:35', '%Y-%m-%d %H:%M')
+date_search = datetime.datetime.strptime('2013-10-28 22:05', '%Y-%m-%d %H:%M')
 
 srs_today = get_srs_from_datetime(date_search).upper()
 srs_yday = get_srs_from_datetime(date_search - datetime.timedelta(days =1)).upper()
@@ -14,6 +14,8 @@ srs_yday = get_srs_from_datetime(date_search - datetime.timedelta(days =1)).uppe
 
 
 events_today, events_yday = events_arm(date_search)
+events_today = events_today.reset_index(drop = True)
+events_yday = events_yday.reset_index(drop = True)
 
 def greek_to_alpha(x):
 	for i in range(0, len(x)):
@@ -159,6 +161,17 @@ def find_AR_nmb_sol_mon(events_today, srs_test):
 events_today = find_AR_nmb_sol_mon(events_today, srs_today)
 events_yday = find_AR_nmb_sol_mon(events_yday, srs_yday)
 
+other_nbr = []
+for i in range(len(events_today)):
+	other_nbr.append(events_today['Derived Position'][i].split()[2])
+
+other_nbr_day = []
+for i in range(len(events_yday)):
+	print(events_yday['Derived Position'][i])
+	other_nbr_day.append(events_yday['Derived Position'][i].split()[2])
+
+events_today['NMBR'] = other_nbr
+events_yday['NMBR'] = other_nbr_day
 
 srs_today = srs_today.sort_values('NMBR').reset_index(drop = True).replace(np.nan, '', regex = True)
 srs_yday = srs_yday.sort_values('NMBR').reset_index(drop = True).replace(np.nan, '', regex = True)
@@ -174,7 +187,36 @@ print(srs_yday)
 for i in range(len(srs_today)):
 	t = srs_today.loc[i]
 	y = srs_yday.loc[np.where(srs_yday['NMBR'] == t['NMBR'])[0][0]]
-	print(t['NMBR'] + ' ' + t['NEW_LOCATION'] +' ' +t['Z'] +'/' + y['Z'] + ' '+ t['MAG_AL'] + '/' + y['MAG_AL'] + ' ' + t['AREA'] + '/' + y['AREA'] + ' '+  t['NN'] + '/' + y['NN'])
+	flares_t = list(events_today[events_today['NMBR'] == t['NMBR']]['GOES Class'].values)
+	flares_y = list(events_yday[events_yday['NMBR'] == t['NMBR']]['GOES Class'].values)
+
+	str_to_print =(t['NMBR'] + ' ' + t['NEW_LOCATION'] +' ' +t['Z'] +'/' + y['Z'] + ' '+ t['MAG_AL'] + '/' + y['MAG_AL'] + ' ' + t['AREA'] + '/' + y['AREA'] + ' '+  t['NN'] + '/' + y['NN'])
+	flare_today_str = ''
+
+
+
+
+	flare_yday_str = ''
+	if len(flares_t) > 0:
+		for j in range(len(flares_t)):
+			flare_today_str = flare_today_str + flares_t[j] + ' '
+	else:
+		flare_today_str = '- '
+	if len(flares_y)>0:
+
+		for j in range(len(flares_y)):
+			flare_yday_str = flare_yday_str + flares_y[j] + ' '
+
+	else:
+		flare_yday_str = '-'
+
+	print(str_to_print + ' '+flare_today_str + '/ ' + flare_yday_str)
+
+
+for i in range(len(srs_today)):
+	t = srs_today.loc[i]
+	y = srs_yday.loc[np.where(srs_yday['NMBR'] == t['NMBR'])[0][0]]
+
 
 '''
 #arm ar titles
