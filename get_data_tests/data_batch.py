@@ -6,18 +6,32 @@ import pandas as pd
 from rot_location2 import rot_location
 
 
-date_search = datetime.datetime.strptime('2013-10-28 22:05', '%Y-%m-%d %H:%M')
-
-srs_today = get_srs_from_datetime(date_search).upper()
-srs_yday = get_srs_from_datetime(date_search - datetime.timedelta(days =1)).upper()
 
 
 
-events_today, events_yday = events_arm(date_search)
-events_today = events_today.reset_index(drop = True)
-events_yday = events_yday.reset_index(drop = True)
+#----------------------------------------#
+#		Functions Used in Script	     #
+#		  Move to meta_utils.py          #
+#----------------------------------------#
+
+
 
 def greek_to_alpha(x):
+
+	'''
+	function to convert Hale class into alphabetical values
+
+	Parameters
+	----------
+
+	x - list, array or pandas column
+
+	Returns 
+	-------
+
+	x - list or array pandas column as abc ect
+	'''
+
 	for i in range(0, len(x)):
 		if x[i] == 'ALPHA':
 			x[i] = 'a'
@@ -36,34 +50,26 @@ def greek_to_alpha(x):
 	return x	
 
 
+
 def put_srs_in_df(srs_test):
-	for i in range(0, len(srs_test)-1):
-		if srs_test[i][0:2] == 'I.':
-			ind_start = i
-		if srs_test[i][0:3] == 'IA.':
-			ind_end = i
-		if srs_test[i][0:3] == 'II.':
-			ind_end_end = i
+
+	'''
+	function to put the SRS file format as a list of list of strings (I know gross)
+	into a pandas DataFrame
+
+	Parameters
+	----------
+
+	list of lists of strings read from the txt file
 
 
-	header_srs = srs_test[ind_start+1].split()[0:-1] 
+	Returns 
+	-------
 
-	data_srs = np.array([x.split() for x in srs_test[ind_start+2:ind_end]])
-	if data_srs[0][0] == 'NONE':
-		data_srs = np.array([len(header_srs)*['NONE']])
-	
-	data_test = pd.DataFrame(data_srs, columns = header_srs)
+	pandas DataFrame of the  active regions in SRS file and their atributes
 
+	'''
 
-
-	#get into right format for McIntost Classification i.e. Zpc
-	data_test['Z'] = [x[0].upper() + x[1:3].lower() for x in data_test['Z']]
-	data_test['MAG_AL'] = data_test['MAG']
-	greek_to_alpha(data_test['MAG_AL'])
-	return data_test
-
-
-def put_srs_in_df2(srs_test):
 	for i in range(0, len(srs_test)-1):
 		if srs_test[i][0:2] == 'I.':
 			ind_start = i
@@ -99,20 +105,27 @@ def put_srs_in_df2(srs_test):
 	return data_test
 
 
-issued_today = srs_today[31:45]+':'+srs_today[45:47]
-t_noaa_today = srs_today[31:42] + ' 00:00' 
-
-issued_yday = srs_yday[31:45]+':'+srs_yday[45:47]
-t_noaa_yday = srs_yday[31:42] + ' 00:00' 
-
-srs_today = put_srs_in_df2(srs_today.split('\n'))
-srs_yday = put_srs_in_df2(srs_yday.split('\n'))
-
-
-
-
-
 def update_loc_events(srs_test, t_noaa):
+
+	'''
+	function to update the derived locations of the ARs from the SRS file to the current time
+	Uses rot_location that rotates the location of the AR due to differential rotation of the Sun
+
+
+	Parameters
+	----------
+
+	srs_test - the pandas Dataframe containing the SRS information
+	t_noaa - issue date of the SRS information
+
+
+	Returns 
+	-------
+
+	pandas DataFrame with updated location
+
+	'''
+
 	t_start_srs = datetime.datetime.strptime(t_noaa, '%Y %b %d %H:%M')
 	t_end_srs = date_search 
 
@@ -129,19 +142,48 @@ def update_loc_events(srs_test, t_noaa):
 
 
 
-srs_today = update_loc_events(srs_today, t_noaa_today)
-srs_yday = update_loc_events(srs_yday, t_noaa_yday)
-
-
-#identify NOAA region closest to each event
 
 def distance(x1, x2, y1, y2):
+
+	'''
+	Function to return distance between two coordinates (x1, y1) to (x2, y2)
+	
+	Parameters
+	----------
+
+	x1, y1, x2, y2 - ints/floats
+
+	Returns
+	-------
+	Distance between two points
+	
+	'''
+
+
 	return np.sqrt( abs(x2 - x1)**2 + abs(y2 - y1)**2)
 
 
-#events_today = events_yday
-#search area in arcsec
 def find_AR_nmb_sol_mon(events_today, srs_test):
+
+	'''
+	Function to find the AR of the flaring events from the lsmal latest events based on the locations
+	of the events and the AR properties from the SRS files.
+	Finds the distances of each event to AR in SRS files and assigns the AR with closest distance within
+	a max radius of 120 arcsec. If none found - a 'no_noaa' is assigned
+
+	Parameters
+	----------
+
+	events_today - events DataFrame that includes the LMSAL latest events information
+	srs_test - the SRS DataFrame
+
+	Returns
+	-------
+
+	events_today with a new column of AR tag - 'NOAA NBR'
+
+
+	'''
 	positions = []
 	r_search = 120.
 
@@ -158,8 +200,53 @@ def find_AR_nmb_sol_mon(events_today, srs_test):
 	events_today['NOAA_NBR'] = positions
 	return events_today
 
+
+#-----------------------------------------------#
+
+
+'''			Begin setup  			'''
+
+
+
+#date of interest
+date_search = datetime.datetime.strptime('2016-03-18 19:30', '%Y-%m-%d %H:%M')
+
+
+#get SRS information from today and yday and make all characters uppercase (why? cause solarmonitor does)
+srs_today = get_srs_from_datetime(date_search).upper()
+srs_yday = get_srs_from_datetime(date_search - datetime.timedelta(days =1)).upper()
+
+#get events DataFrame from LMSAL
+events_today, events_yday = events_arm(date_search)
+
+
+
+#-------------------------------------------------#
+
+#issue times for today and yday - needed for update of location
+
+issued_today = srs_today.split('\n')[1][9:25]
+t_noaa_today = srs_today.split('\n')[1][9:20] + ' 00:00' 
+
+issued_yday = srs_yday.split('\n')[1][9:25]
+t_noaa_yday = srs_yday.split('\n')[1][9:20] + ' 00:00' 
+
+srs_today = put_srs_in_df(srs_today.split('\n'))
+srs_yday = put_srs_in_df(srs_yday.split('\n'))
+
+
+#update location of ARs to current time
+
+srs_today = update_loc_events(srs_today, t_noaa_today)
+srs_yday = update_loc_events(srs_yday, t_noaa_yday)
+
+#find AR of the latest events
+
 events_today = find_AR_nmb_sol_mon(events_today, srs_today)
 events_yday = find_AR_nmb_sol_mon(events_yday, srs_yday)
+
+#same as above but takes directly from LMSAL info rather than calculating it like 
+#like the way the current solar monitor does it
 
 other_nbr = []
 for i in range(len(events_today)):
@@ -170,100 +257,68 @@ for i in range(len(events_yday)):
 	print(events_yday['Derived Position'][i])
 	other_nbr_day.append(events_yday['Derived Position'][i].split()[2])
 
+
+#so to summarize events['NOAA_NMBR'] is the calculated position and events['NMBR'] are from LMSAL
+#this will be fixed after testing, but good to keep when comparing to solarmonitor.org/data
 events_today['NMBR'] = other_nbr
 events_yday['NMBR'] = other_nbr_day
 
+
+#fixing indices of DataFrame and droppings NaNs to be empty strings
 srs_today = srs_today.sort_values('NMBR').reset_index(drop = True).replace(np.nan, '', regex = True)
 srs_yday = srs_yday.sort_values('NMBR').reset_index(drop = True).replace(np.nan, '', regex = True)
 
-print(events_today.sort_values('NOAA_NBR'))
 
-print(events_yday.sort_values('NOAA_NBR'))
+#----------------------------------------#
 
-print(srs_today)
-print(srs_yday)
+# Now put all the info into a summary Dataframe - similar to summary structrue in IDL version
 
-
+ar_noaa, latest_pos, latest_loc, hale_t, hale_y, mcintosh_t, mcintosh_y, area_t, area_y, no_sunspots_t, no_sunspots_y, flares_t, flares_y = [], [], [], [], [], [], [], [], [], [], [], [], []
 for i in range(len(srs_today)):
 	t = srs_today.loc[i]
-	y = srs_yday.loc[np.where(srs_yday['NMBR'] == t['NMBR'])[0][0]]
-	flares_t = list(events_today[events_today['NMBR'] == t['NMBR']]['GOES Class'].values)
-	flares_y = list(events_yday[events_yday['NMBR'] == t['NMBR']]['GOES Class'].values)
-
-	str_to_print =(t['NMBR'] + ' ' + t['NEW_LOCATION'] +' ' +t['Z'] +'/' + y['Z'] + ' '+ t['MAG_AL'] + '/' + y['MAG_AL'] + ' ' + t['AREA'] + '/' + y['AREA'] + ' '+  t['NN'] + '/' + y['NN'])
-	flare_today_str = ''
-
-
-
-
-	flare_yday_str = ''
-	if len(flares_t) > 0:
-		for j in range(len(flares_t)):
-			flare_today_str = flare_today_str + flares_t[j] + ' '
+	y = srs_yday.loc[np.where(srs_yday['NMBR'] == t['NMBR'])[0]]
+	if y.empty == True:
+		y = pd.Series(index = t.index)
 	else:
-		flare_today_str = '- '
-	if len(flares_y)>0:
-
-		for j in range(len(flares_y)):
-			flare_yday_str = flare_yday_str + flares_y[j] + ' '
-
-	else:
-		flare_yday_str = '-'
-
-	print(str_to_print + ' '+flare_today_str + '/ ' + flare_yday_str)
+		y = pd.Series(y.values[0], index = t.index)
+	f_t = list(events_today[events_today['NMBR'] == t['NMBR']]['GOES Class'].values)
+	f_y = list(events_yday[events_yday['NMBR'] == t['NMBR']]['GOES Class'].values)
 
 
-for i in range(len(srs_today)):
-	t = srs_today.loc[i]
-	y = srs_yday.loc[np.where(srs_yday['NMBR'] == t['NMBR'])[0][0]]
+	ar_noaa.append('1' + t['NMBR'])
+	latest_pos.append(t['NEW_LOCATION'])
+	latest_loc.append((int(t['NEW_X']), int(t['NEW_Y'])))
+	hale_t.append(t['MAG'])
+	hale_y.append(y['MAG'])
+	mcintosh_t.append(t['Z'])
+	mcintosh_y.append(y['Z'])
+	area_t.append(t['AREA'])
+	area_y.append(y['AREA'])
+	no_sunspots_t.append(t['NN'])
+	no_sunspots_y.append(y['NN'])
+	flares_t.append(f_t)
+	flares_y.append(f_y)
+
+summary_dict = {'AR_NUM' : ar_noaa,
+				'LATEST_POS' : latest_pos,
+				'LATEST_LOC' : latest_loc,
+				'HALE_TODAY' : hale_t,
+				'HALE_YDAY' :  hale_y,
+				'MCINTOSH_TODAY': mcintosh_t,
+				'MCINTOSH_YDAY' : mcintosh_y,
+				'AREA_T' : area_t, 
+				'AREA_Y' : area_y,
+				'NO_SUNSPOT_T' : no_sunspots_t, 
+				'NO_SUNSPOT_Y' : no_sunspots_y, 
+				'FLARES_T' : flares_t, 
+				'FLARES_Y' : flares_y}
+
+summary = pd.DataFrame(summary_dict).replace(np.nan, '')
+print(summary)
+
+
+
+#----------------------------------------#
 
 
 '''
-#arm ar titles
-for i in range(len(srs_test)):
-	print('1' + srs_test['NMBR'][i] + ' NOAA 1' + srs_test['NMBR'][i] + ' - ' + srs_test['NEW_LOCATION'][i] + 
-		  ' (' + str(int(srs_test['NEW_X'][i])) + '",' + str(int(srs_test['NEW_Y'][i])) + '")' + ' - ' + srs_test['MAG'][i] )
-
-
-#arm ar summary
-fl_class, ename = [], []
-for i in range(len(srs_today)):
-
-	fl_class.append(list(events_today[events_today['NOAA_NBR'] == srs_today['NMBR'][i]]['GOES Class'].values))
-	ename.append(list(events_today[events_today['NOAA_NBR'] == srs_today['NMBR'][i]]['EName'].values))
-
-summary = srs_today
-summary['EName'] = ename
-summary['GOES Class'] = fl_class
-
-
-base_url = 'http://www.lmsal.com/solarsoft/latest_events_archive/events_summary/'+date_search.strftime('%Y/%m/%d/')#2013/10/28/gev_20131028_0432/index.html'
-for i in range(len(summary)):
-	str_to_print = ('1'+summary['NMBR'][i] + ' ' + summary['NEW_LOCATION'][i] + ' (' + str(int(summary['NEW_X'][i])) + '",' + str(int(summary['NEW_Y'][i])) + '") ' + summary['MAG_AL'][i] + '/ ' + summary['Z'][i] + '/ ' + summary['AREA'][i] + '/ ' + summary['NN'][i] + '/ ' )
-	#print(str_to_print)
-	
-	if len(summary['EName'][i])>0:
-		#print(i)
-		for j in range(len(summary['EName'][i])):
-			str_to_print = (str_to_print + base_url + summary['EName'][i][j] + '/index.html ' + summary['GOES Class'][i][j]) + ' '
-
-
-	print(str_to_print)
-
-
-'''
-
-noaa_name, latest_location, hale_class = [], [], []
-for i in range(len(srs_today)):
-	prev = srs_yday[srs_yday['NMBR'] == srs_today['NMBR'][i]] 
-	noaa_name.append(srs_today['NMBR'][i])
-	latest_location.append(srs_today['NEW_LOCATION'][i])
-	print(type(prev['Z']))
-	if type(prev['Z'].values[0])!= str:
-		hale_class.append(srs_today['Z'][i] + '/-')
-	else:
-		hale_class.append(srs_today['Z'][i] + '/' + prev['Z'].values[0])
-
-
-
-
