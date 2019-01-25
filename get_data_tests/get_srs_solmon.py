@@ -57,9 +57,9 @@ def get_srs_from_datetime(date):
 	return srs_found
 
 
-srs_today = get_srs_from_datetime(time_now)
-srs_yesterday = get_srs_from_datetime(time_now - datetime.timedelta(days = 1))
+#srs_today = get_srs_from_datetime(time_now)
+#srs_yesterday = get_srs_from_datetime(time_now - datetime.timedelta(days = 1))
 
-issued = datetime.datetime.strptime(srs_today.split('\n')[1][9:-4], '%Y %b %d %H%M')
-t_noaa = datetime.datetime.strptime(srs_today.split('\n')[1][9:-6] + '00', '%Y %b %d %H%M')
-print(issued, t_noaa)
+#issued = datetime.datetime.strptime(srs_today.split('\n')[1][9:-4], '%Y %b %d %H%M')
+#t_noaa = datetime.datetime.strptime(srs_today.split('\n')[1][9:-6] + '00', '%Y %b %d %H%M')
+#print(issued, t_noaa)
