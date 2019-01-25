@@ -203,11 +203,13 @@ def events_arm(date_search):
 	m_class_yday = yday_events[yday_events['GOES Class'].map(lambda x: x[0]) == 'M']
 	c_class_yday = yday_events[yday_events['GOES Class'].map(lambda x: x[0]) == 'C']
 
-	return today_events, yday_events
+	return today_events.reset_index(drop = True), yday_events.reset_index(drop = True)
 
+	'''
 	print('todays X-class flares ', x_class_today['GOES Class'].values)
 	print('todays M-class flares', m_class_today['GOES Class'].values)
 	print('todays C-class flares', c_class_today['GOES Class'].values)
 	print('ydays X-class flares ',x_class_yday['GOES Class'].values)
 	print('ydays M-class flares ',m_class_yday['GOES Class'].values)
 	print('ydays C-class flares ',c_class_yday['GOES Class'].values)
+	'''
