@@ -7,12 +7,11 @@ from rot_location2 import rot_location
 
 
 
+#---------------------------------------------------------#
 
+# Functions Used in Script - will be moved to meta_utils.py          
 
-#----------------------------------------#
-#		Functions Used in Script	     #
-#		  Move to meta_utils.py          #
-#----------------------------------------#
+#---------------------------------------------------------#
 
 
 
