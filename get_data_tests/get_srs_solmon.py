@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 #from get_srs_test import date_struct
 
-output_path_test = '/Users/admin/Documents/solarmonitor_2_0/get_data_tests/'
+output_path_test = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_data_tests'
 
 time_now = datetime.datetime.utcnow()
 
@@ -29,14 +29,17 @@ def get_srs_from_datetime(date):
 
 	solmon_path = 'https://solarmonitor.org'
 	file_srs_solmon = solmon_path+'/data/'+date.strftime('%Y')+'/'+date.strftime('%m')+'/'+date.strftime('%d')+'/meta/'+date.strftime('%m')+date.strftime('%d')+'SRS.txt'
+	
 
+	file_name = date.strftime('%Y%m%d')+'SRS.txt'
+	file_path = os.path.join(output_path_test, file_name)
+
+	if os.path.exists(out_dir):
+		srs = file_path.read()
 
 	cc = check_servers_online(file_srs)
 	dd = check_servers_online(file_srs_solmon)
 	if cc == 1:
-
-		file_name = date.strftime('%Y%m%d')+'SRS.txt'
-		file_path = os.path.join(output_path_test, file_name)
 
 		urllib.request.urlretrieve(file_srs, file_path)
 		print('downloading into ', file_path)
@@ -44,8 +47,6 @@ def get_srs_from_datetime(date):
 		srs_found = srs
 
 	elif dd == 1:
-		file_name = date.strftime('%Y%m%d')+'SRS.txt'
-		file_path = os.path.join(output_path_test, file_name)
 
 		urllib.request.urlretrieve(file_srs_solmon, file_path)
 		print('downloading into ', file_path)
