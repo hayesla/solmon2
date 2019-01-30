@@ -6,7 +6,8 @@ import pandas as pd
 import numpy as np
 #from get_srs_test import date_struct
 
-output_path_test = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_data_tests'
+#output_path_test = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_data_tests'
+#output_path_test = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/get_data_tests'
 
 time_now = datetime.datetime.utcnow()
 
@@ -24,6 +25,11 @@ def check_servers_online(website_url):
 
 
 def get_srs_from_datetime(date):
+
+
+	output_path_test = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/data/'+date.strftime('%Y/%m%/%d') + '/meta'
+	if not os.path.exists(output_path_test):
+		os.makedirs(output_path_test)
 	server_path = 'ftp://ftp.swpc.noaa.gov/pub/warehouse'
 	file_srs = server_path + '/' + date.strftime('%Y') + '/SRS/' + date.strftime('%Y%m%d') + 'SRS.txt'
 
@@ -34,26 +40,28 @@ def get_srs_from_datetime(date):
 	file_name = date.strftime('%Y%m%d')+'SRS.txt'
 	file_path = os.path.join(output_path_test, file_name)
 
-	if os.path.exists(out_dir):
-		srs = file_path.read()
+	if os.path.exists(file_path):
+		f = open(file_path)
+		srs_found = f.read()
 
-	cc = check_servers_online(file_srs)
-	dd = check_servers_online(file_srs_solmon)
-	if cc == 1:
-
-		urllib.request.urlretrieve(file_srs, file_path)
-		print('downloading into ', file_path)
-		srs = urllib.request.urlopen(file_srs).read().decode('utf-8')
-		srs_found = srs
-
-	elif dd == 1:
-
-		urllib.request.urlretrieve(file_srs_solmon, file_path)
-		print('downloading into ', file_path)
-		srs = urllib.request.urlopen(file_srs_solmon).read().decode('utf-8')
-		srs_found = srs
 	else:
-		srs_found= 'No data'
+		cc = check_servers_online(file_srs)
+		dd = check_servers_online(file_srs_solmon)
+		if cc == 1:
+
+			urllib.request.urlretrieve(file_srs, file_path)
+			print('downloading into ', file_path)
+			srs = urllib.request.urlopen(file_srs).read().decode('utf-8')
+			srs_found = srs
+
+		elif dd == 1:
+
+			urllib.request.urlretrieve(file_srs_solmon, file_path)
+			print('downloading into ', file_path)
+			srs = urllib.request.urlopen(file_srs_solmon).read().decode('utf-8')
+			srs_found = srs
+		else:
+			srs_found= 'No data'
 	
 	return srs_found
 
