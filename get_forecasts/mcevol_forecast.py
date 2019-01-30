@@ -3,28 +3,36 @@ import pandas as pd
 from scipy.io import readsav
 import os
 
-#Defining McIntosh Classifications
-Zur = np.array(['A','B','H', 'C', 'D', 'E', 'F'])
-Pen = np.array(['X', 'R', 'S', 'A','H', 'K'])
-Comp = np.array(['X', 'O', 'I' , 'C'])
 
-flarehist_path = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_forecasts/'
-flarehist_file = os.path.join(flarehist_path, 'mcint_evol_flarehist.sav')
-
-flarehist_data = readsav(flarehist_file)
-mcint_flrate_c = flarehist_data['mcint_flrate_c']
-mcint_flrate_m = flarehist_data['mcint_flrate_m']
-mcint_flrate_x = flarehist_data['mcint_flrate_x']
 
 
 
 def get_mcevol_forecast(mcintosh_1, mcintosh_2):
 		
-		count = 0
 
-		mcint_t = mcintosh_1.upper()
-		mcint_y = mcintosh_2.upper()
+	#Defining McIntosh Classifications
+	Zur = np.array(['A','B','H', 'C', 'D', 'E', 'F'])
+	Pen = np.array(['X', 'R', 'S', 'A','H', 'K'])
+	Comp = np.array(['X', 'O', 'I' , 'C'])
 
+	flarehist_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/get_forecasts/'
+	flarehist_file = os.path.join(flarehist_path, 'mcint_evol_flarehist.sav')
+
+	flarehist_data = readsav(flarehist_file)
+	mcint_flrate_c = flarehist_data['mcint_flrate_c']
+	mcint_flrate_m = flarehist_data['mcint_flrate_m']
+	mcint_flrate_x = flarehist_data['mcint_flrate_x']
+	
+
+	count = 0
+
+	mcint_t = mcintosh_1.upper()
+	mcint_y = mcintosh_2.upper()
+
+	if len(mcint_t) < 3  or len(mcint_y) < 3:
+		count += 1
+
+	else:	
 		index_zt = np.where(Zur == mcint_t[0])[0][0]
 		index_pt = np.where(Pen == mcint_t[1])[0][0]
 		index_ct = np.where(Comp == mcint_t[2])[0][0]
@@ -35,28 +43,28 @@ def get_mcevol_forecast(mcintosh_1, mcintosh_2):
 
 		index_list = [index_ct, index_pt, index_zt, index_cy,index_py, index_zy]
 
-		#check if evolution has never been seen before - i.e check if nan
+	#check if evolution has never been seen before - i.e check if nan
 		if np.isfinite(mcint_flrate_c[index_ct, index_pt, index_zt, index_cy,index_py, index_zy]) == False:
 			count +=1
 
 
 
-		if count > 0:
-			cprob_evol = '...'
-			mprob_evol = '...'
-			xprob_evol = '...'
+	if count > 0:
+		cprob_evol = '...'
+		mprob_evol = '...'
+		xprob_evol = '...'
 
-		else:
-			c_rate = mcint_flrate_c[index_ct, index_pt, index_zt, index_cy,index_py, index_zy]
-			m_rate = mcint_flrate_m[index_ct, index_pt, index_zt, index_cy,index_py, index_zy]
-			x_rate = mcint_flrate_x[index_ct, index_pt, index_zt, index_cy,index_py, index_zy]
+	else:
+		c_rate = mcint_flrate_c[index_ct, index_pt, index_zt, index_cy,index_py, index_zy]
+		m_rate = mcint_flrate_m[index_ct, index_pt, index_zt, index_cy,index_py, index_zy]
+		x_rate = mcint_flrate_x[index_ct, index_pt, index_zt, index_cy,index_py, index_zy]
 
-			cprob_evol = round(100 * (1 - np.exp(-c_rate)))
-			mprob_evol = round(100 * (1 - np.exp(-m_rate)))
-			xprob_evol = round(100 * (1 - np.exp(-x_rate)))
+		cprob_evol = round(100 * (1 - np.exp(-c_rate)))
+		mprob_evol = round(100 * (1 - np.exp(-m_rate)))
+		xprob_evol = round(100 * (1 - np.exp(-x_rate)))
 
 
-		print(cprob_evol, mprob_evol, xprob_evol)	
+	print(cprob_evol, mprob_evol, xprob_evol)	
 
 
 
