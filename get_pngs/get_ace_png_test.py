@@ -1,7 +1,7 @@
 import datetime
 import urllib
 from urllib.error import HTTPError, URLError
-
+import os
 ########################################
 #these will be moved to utils in future#
 ########################################
@@ -47,31 +47,47 @@ class date_struct():
 
 ##############################################
 #	Actual code part 						 #
-#											 #
-##############################################
-date_time = date_struct()
-date = date_time.date
+y##############################################
+def get_ace_pngs(date, output_path):
+	#date_time = date_struct()
+	#date = date_time.date
 
-output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/png_tests/'
+	#output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/png_tests/'
 
-#out_goes = output_path + '/pngs/goes/'
-
-server = 'https://services.swpc.noaa.gov/'
-
-bfield = server+'images/ace-mag-24-hour.gif'
-plasma = server+'images/ace-swepam-24-hour.gif'
-
-
-bfield_save = output_path + 'sace_bfield'+date+'.gif'
-plasma_save = output_path + 'sace_plasma_'+date+'.gif'
+	#out_goes = output_path + '/pngs/goes/'
+	output_path_ace = output_path + 'ace/'
+	if not os.path.exists(output_path_ace):
+		os.makedirs(output_path_ace)
 
 
 
-cc = check_servers_online(server)
+	today = datetime.datetime.utcnow()
+	if date.date() == today.date():
+		server = 'https://services.swpc.noaa.gov/'
 
-if cc == 1:
-	urllib.request.urlretrieve(bfield, bfield_save)
-	urllib.request.urlretrieve(plasma, plasma_save)
+		bfield = server+'images/ace-mag-24-hour.gif'
+		plasma = server+'images/ace-swepam-24-hour.gif'
+
+
+
+
+	else:
+		server = 'https://solarmonitor.org/data/'+date.strftime('%Y/%m/%d') +'/pngs/ace/'
+		bfield = server + 'sace_bfield_'+date.strftime('%Y%m%d')+'.gif'
+		plasma = server + 'sace_plasma_'+date.strftime('%Y%m%d')+'.gif'
+
+
+	bfield_save = output_path_ace + 'sace_bfield_'+date.strftime('%Y%m%d')+'.gif'
+	plasma_save = output_path_ace + 'sace_plasma_'+date.strftime('%Y%m%d')+'.gif'
+	
+	cc = check_servers_online(server)
+
+	if cc == 1:
+		try:
+			urllib.request.urlretrieve(bfield, bfield_save)
+			urllib.request.urlretrieve(plasma, plasma_save)
+		except:
+			print('something wrong with getting ace data - didnt download')
 
 
 

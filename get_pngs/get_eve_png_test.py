@@ -1,7 +1,7 @@
 import datetime
 import urllib
 from urllib.error import HTTPError, URLError
-
+import os
 ########################################
 #these will be moved to utils in future#
 ########################################
@@ -49,25 +49,36 @@ class date_struct():
 #	Actual code part 						 #
 #											 #
 ##############################################
-date_time = date_struct()
-date = date_time.date
+def get_eve_pngs(date, output_path):
+	#date_time = date_struct()
+	#date = date_time.date
 
-output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/png_tests/'
+	#output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/png_tests/'
 
-#out_goes = output_path + '/pngs/goes/'
-
-server = 'http://lasp.colorado.edu/eve/data_access/quicklook/quicklook_data/'
-
-eve = server+'latest_3day.png'
+	#out_goes = output_path + '/pngs/goes/'
 
 
-eve_save = output_path + 'eve_'+date+'.gif'
+	output_path_eve = output_path + 'eve/'
+	if not os.path.exists(output_path_eve):
+		os.makedirs(output_path_eve)
 
 
-cc = check_servers_online(server)
+	today = datetime.datetime.utcnow()
+	if date.date() == today.date():
 
-if cc == 1:
-	urllib.request.urlretrieve(eve, eve_save)
+		server = 'http://lasp.colorado.edu/eve/data_access/quicklook/quicklook_data/'
 
+		eve = server+'latest_3day.png'
+
+
+		eve_save = output_path_eve + 'eve_'+date.strftime('%Y%m%d')+'.gif'
+
+
+		cc = check_servers_online(server)
+
+		if cc == 1:
+			urllib.request.urlretrieve(eve, eve_save)
+	else:
+		print('cant get past eve events ... yet')
 
 
