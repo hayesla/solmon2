@@ -104,7 +104,7 @@ def put_srs_in_df(srs_test):
 	return data_test
 
 
-def update_loc_events(srs_test, t_noaa):
+def update_loc_events(date_search, srs_test, t_noaa):
 
 	'''
 	function to update the derived locations of the ARs from the SRS file to the current time
@@ -188,7 +188,7 @@ def find_AR_nmb_sol_mon(events_today, srs_test):
 
 	for i in range(len(events_today)):
 		r = distance(events_today['new_x'].values[i], srs_test['NEW_X'].values, events_today['new_y'].values[i], srs_test['NEW_Y'].values)
-		print(i, np.min(r))
+		#print(i, np.min(r))
 		if np.min(r) < r_search:
 			r_index = np.where(r == np.min(r))[0][0]
 
@@ -207,116 +207,119 @@ def find_AR_nmb_sol_mon(events_today, srs_test):
 
 
 
+
+def get_summary(date_search):
+	#get SRS information from today and yday and make all characters uppercase (why? cause solarmonitor does)
+	srs_today = get_srs_from_datetime(date_search).upper()
+	srs_yday = get_srs_from_datetime(date_search - datetime.timedelta(days =1)).upper()
+
+	#get events DataFrame from LMSAL
+	events_today, events_yday = events_arm(date_search)
+
+
+
+	#-------------------------------------------------#
+
+	#issue times for today and yday - needed for update of location
+
+	issued_today = srs_today.split('\n')[1][9:25]
+	t_noaa_today = srs_today.split('\n')[1][9:20] + ' 00:00' 
+
+	issued_yday = srs_yday.split('\n')[1][9:25]
+	t_noaa_yday = srs_yday.split('\n')[1][9:20] + ' 00:00' 
+
+	srs_today = put_srs_in_df(srs_today.split('\n'))
+	srs_yday = put_srs_in_df(srs_yday.split('\n'))
+
+
+	#update location of ARs to current time
+
+	srs_today = update_loc_events(date_search, srs_today, t_noaa_today)
+	srs_yday = update_loc_events(date_search, srs_yday, t_noaa_yday)
+
+	#find AR of the latest events
+
+	events_today = find_AR_nmb_sol_mon(events_today, srs_today)
+	events_yday = find_AR_nmb_sol_mon(events_yday, srs_yday)
+
+	#same as above but takes directly from LMSAL info rather than calculating it like 
+	#like the way the current solar monitor does it
+
+	other_nbr = []
+	for i in range(len(events_today)):
+		other_nbr.append(events_today['Derived Position'][i].split()[2])
+
+	other_nbr_day = []
+	for i in range(len(events_yday)):
+		#print(events_yday['Derived Position'][i])
+		other_nbr_day.append(events_yday['Derived Position'][i].split()[2])
+
+
+	#so to summarize events['NOAA_NMBR'] is the calculated position and events['NMBR'] are from LMSAL
+	#this will be fixed after testing, but good to keep when comparing to solarmonitor.org/data
+	events_today['NMBR'] = other_nbr
+	events_yday['NMBR'] = other_nbr_day
+
+
+	#fixing indices of DataFrame and droppings NaNs to be empty strings
+	srs_today = srs_today.sort_values('NMBR').reset_index(drop = True).replace(np.nan, '', regex = True)
+	srs_yday = srs_yday.sort_values('NMBR').reset_index(drop = True).replace(np.nan, '', regex = True)
+
+
+	#----------------------------------------#
+
+	# Now put all the info into a summary Dataframe - similar to summary structrue in IDL version
+
+	ar_noaa, latest_pos, latest_loc, hale_t, hale_y, mcintosh_t, mcintosh_y, area_t, area_y, no_sunspots_t, no_sunspots_y, flares_t, flares_y = [], [], [], [], [], [], [], [], [], [], [], [], []
+	for i in range(len(srs_today)):
+		t = srs_today.loc[i]
+		y = srs_yday.loc[np.where(srs_yday['NMBR'] == t['NMBR'])[0]]
+		if y.empty == True:
+			y = pd.Series(index = t.index)
+		else:
+			y = pd.Series(y.values[0], index = t.index)
+		f_t = list(events_today[events_today['NMBR'] == t['NMBR']]['GOES Class'].values)
+		f_y = list(events_yday[events_yday['NMBR'] == t['NMBR']]['GOES Class'].values)
+
+
+		ar_noaa.append('1' + t['NMBR'])
+		latest_pos.append(t['NEW_LOCATION'])
+		latest_loc.append((int(t['NEW_X']), int(t['NEW_Y'])))
+		hale_t.append(t['MAG'])
+		hale_y.append(y['MAG'])
+		mcintosh_t.append(t['Z'])
+		mcintosh_y.append(y['Z'])
+		area_t.append(t['AREA'])
+		area_y.append(y['AREA'])
+		no_sunspots_t.append(t['NN'])
+		no_sunspots_y.append(y['NN'])
+		flares_t.append(f_t)
+		flares_y.append(f_y)
+
+	summary_dict = {'AR_NUM' : ar_noaa,
+					'LATEST_POS' : latest_pos,
+					'LATEST_LOC' : latest_loc,
+					'HALE_TODAY' : hale_t,
+					'HALE_YDAY' :  hale_y,
+					'MCINTOSH_TODAY': mcintosh_t,
+					'MCINTOSH_YDAY' : mcintosh_y,
+					'AREA_T' : area_t, 
+					'AREA_Y' : area_y,
+					'NO_SUNSPOT_T' : no_sunspots_t, 
+					'NO_SUNSPOT_Y' : no_sunspots_y, 
+					'FLARES_T' : flares_t, 
+					'FLARES_Y' : flares_y}
+
+	summary = pd.DataFrame(summary_dict).replace(np.nan, '')
+	#print(summary)
+	return(summary)
+
+
+#----------------------------------------#
 #date of interest
+'''
 date_search = datetime.datetime.strptime('2016-03-18 19:30', '%Y-%m-%d %H:%M')
+date_search = datetime.datetime.utcnow()
 
-
-#get SRS information from today and yday and make all characters uppercase (why? cause solarmonitor does)
-srs_today = get_srs_from_datetime(date_search).upper()
-srs_yday = get_srs_from_datetime(date_search - datetime.timedelta(days =1)).upper()
-
-#get events DataFrame from LMSAL
-events_today, events_yday = events_arm(date_search)
-
-
-
-#-------------------------------------------------#
-
-#issue times for today and yday - needed for update of location
-
-issued_today = srs_today.split('\n')[1][9:25]
-t_noaa_today = srs_today.split('\n')[1][9:20] + ' 00:00' 
-
-issued_yday = srs_yday.split('\n')[1][9:25]
-t_noaa_yday = srs_yday.split('\n')[1][9:20] + ' 00:00' 
-
-srs_today = put_srs_in_df(srs_today.split('\n'))
-srs_yday = put_srs_in_df(srs_yday.split('\n'))
-
-
-#update location of ARs to current time
-
-srs_today = update_loc_events(srs_today, t_noaa_today)
-srs_yday = update_loc_events(srs_yday, t_noaa_yday)
-
-#find AR of the latest events
-
-events_today = find_AR_nmb_sol_mon(events_today, srs_today)
-events_yday = find_AR_nmb_sol_mon(events_yday, srs_yday)
-
-#same as above but takes directly from LMSAL info rather than calculating it like 
-#like the way the current solar monitor does it
-
-other_nbr = []
-for i in range(len(events_today)):
-	other_nbr.append(events_today['Derived Position'][i].split()[2])
-
-other_nbr_day = []
-for i in range(len(events_yday)):
-	print(events_yday['Derived Position'][i])
-	other_nbr_day.append(events_yday['Derived Position'][i].split()[2])
-
-
-#so to summarize events['NOAA_NMBR'] is the calculated position and events['NMBR'] are from LMSAL
-#this will be fixed after testing, but good to keep when comparing to solarmonitor.org/data
-events_today['NMBR'] = other_nbr
-events_yday['NMBR'] = other_nbr_day
-
-
-#fixing indices of DataFrame and droppings NaNs to be empty strings
-srs_today = srs_today.sort_values('NMBR').reset_index(drop = True).replace(np.nan, '', regex = True)
-srs_yday = srs_yday.sort_values('NMBR').reset_index(drop = True).replace(np.nan, '', regex = True)
-
-
-#----------------------------------------#
-
-# Now put all the info into a summary Dataframe - similar to summary structrue in IDL version
-
-ar_noaa, latest_pos, latest_loc, hale_t, hale_y, mcintosh_t, mcintosh_y, area_t, area_y, no_sunspots_t, no_sunspots_y, flares_t, flares_y = [], [], [], [], [], [], [], [], [], [], [], [], []
-for i in range(len(srs_today)):
-	t = srs_today.loc[i]
-	y = srs_yday.loc[np.where(srs_yday['NMBR'] == t['NMBR'])[0]]
-	if y.empty == True:
-		y = pd.Series(index = t.index)
-	else:
-		y = pd.Series(y.values[0], index = t.index)
-	f_t = list(events_today[events_today['NMBR'] == t['NMBR']]['GOES Class'].values)
-	f_y = list(events_yday[events_yday['NMBR'] == t['NMBR']]['GOES Class'].values)
-
-
-	ar_noaa.append('1' + t['NMBR'])
-	latest_pos.append(t['NEW_LOCATION'])
-	latest_loc.append((int(t['NEW_X']), int(t['NEW_Y'])))
-	hale_t.append(t['MAG'])
-	hale_y.append(y['MAG'])
-	mcintosh_t.append(t['Z'])
-	mcintosh_y.append(y['Z'])
-	area_t.append(t['AREA'])
-	area_y.append(y['AREA'])
-	no_sunspots_t.append(t['NN'])
-	no_sunspots_y.append(y['NN'])
-	flares_t.append(f_t)
-	flares_y.append(f_y)
-
-summary_dict = {'AR_NUM' : ar_noaa,
-				'LATEST_POS' : latest_pos,
-				'LATEST_LOC' : latest_loc,
-				'HALE_TODAY' : hale_t,
-				'HALE_YDAY' :  hale_y,
-				'MCINTOSH_TODAY': mcintosh_t,
-				'MCINTOSH_YDAY' : mcintosh_y,
-				'AREA_T' : area_t, 
-				'AREA_Y' : area_y,
-				'NO_SUNSPOT_T' : no_sunspots_t, 
-				'NO_SUNSPOT_Y' : no_sunspots_y, 
-				'FLARES_T' : flares_t, 
-				'FLARES_Y' : flares_y}
-
-summary = pd.DataFrame(summary_dict).replace(np.nan, '')
-print(summary)
-
-
-
-#----------------------------------------#
-
-
+summary = get_summary(date_search)
+print(summary)'''
