@@ -2,11 +2,17 @@ import os
 import sys
 import datetime
 import numpy as np
+
+
+#macbook
+#base_path = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/'
+#maccomp
+base_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/'
 #get path access to code in different folders
-sys.path.append('/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_fits')
-sys.path.append('/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_forecasts')
-sys.path.append('/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_data_tests')
-sys.path.append('/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_pngs')
+sys.path.append(base_path + 'get_fits')
+sys.path.append(base_path + 'get_forecasts')
+sys.path.append(base_path + 'get_data_tests')
+sys.path.append(base_path + 'get_pngs')
 
 from data_batch import get_summary
 from get_forecast import get_mcstat_forecast, get_mcevol_forecast, get_noaa_probs
@@ -20,7 +26,7 @@ from get_all_fits import get_all_fits
 date_search = datetime.datetime.utcnow() #- datetime.timedelta(days = 1)
 
 #make directories to store data
-output_path = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/data/'+date_search.strftime('%Y/%m/%d/')
+output_path = base_path + 'data/'+date_search.strftime('%Y/%m/%d/')
 png_path = output_path + 'pngs/'
 fits_path = output_path + 'fits/'
 meta_path = output_path + 'meta/'
@@ -30,7 +36,7 @@ for i in [png_path, fits_path, meta_path]:
 
 #--------------------------------------------#
 
-summary = get_summary(date_search)
+summary = get_summary(date_search, meta_path)
 
 
 #get forecasts and add to summary dataframe
