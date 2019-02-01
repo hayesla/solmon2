@@ -215,10 +215,10 @@ def find_AR_nmb_sol_mon(events_today, srs_test):
 
 
 
-def get_summary(date_search):
+def get_summary(date_search, out_dir):
 	#get SRS information from today and yday and make all characters uppercase (why? cause solarmonitor does)
-	srs_today = get_srs_from_datetime(date_search).upper()
-	srs_yday = get_srs_from_datetime(date_search - datetime.timedelta(days =1)).upper()
+	srs_today = get_srs_from_datetime(date_search, out_dir).upper()
+	srs_yday = get_srs_from_datetime(date_search - datetime.timedelta(days =1), out_dir).upper()
 
 	#get events DataFrame from LMSAL
 	events_today, events_yday = events_arm(date_search)
