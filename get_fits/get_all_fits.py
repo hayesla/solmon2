@@ -12,16 +12,6 @@ from hmi_tests2 import get_hmi_m
 from xrt_tests import get_xrt
 from get_stereo import get_stereo
 
-date_search = datetime.datetime.utcnow()
-
-
-output_path = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/data/'+date_search.strftime('%Y/%m/%d/')
-png_path = output_path + 'pngs/'
-fits_path = output_path + 'fits/'
-meta_path = output_path + 'meta/'
-for i in [png_path, fits_path, meta_path]:
-	if not os.path.exists(i):
-		os.makedirs(i)
 
 
 def get_all_fits(date_search, fits_path):
