@@ -24,12 +24,12 @@ def check_servers_online(website_url):
 	return check
 
 
-def get_srs_from_datetime(date):
+def get_srs_from_datetime(date, out_dir):
 
 
-	output_path_test = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/data/'+date.strftime('%Y/%m%/%d') + '/meta'
-	if not os.path.exists(output_path_test):
-		os.makedirs(output_path_test)
+	#out_dir = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/data/'+date.strftime('%Y/%m%/%d') + '/meta'
+	if not os.path.exists(out_dir):
+		os.makedirs(out_dir)
 	server_path = 'ftp://ftp.swpc.noaa.gov/pub/warehouse'
 	file_srs = server_path + '/' + date.strftime('%Y') + '/SRS/' + date.strftime('%Y%m%d') + 'SRS.txt'
 
@@ -38,7 +38,7 @@ def get_srs_from_datetime(date):
 	
 
 	file_name = date.strftime('%Y%m%d')+'SRS.txt'
-	file_path = os.path.join(output_path_test, file_name)
+	file_path = os.path.join(out_dir, file_name)
 
 	if os.path.exists(file_path):
 		f = open(file_path)
