@@ -127,15 +127,19 @@ def update_loc_events(date_search, srs_test, t_noaa):
 	t_start_srs = datetime.datetime.strptime(t_noaa, '%Y %b %d %H:%M')
 	t_end_srs = date_search 
 
-	srs_new_loc, srs_new_xy = [], []
+	if len(srs_test) == 0:
+		srs_test['NEW_LOCATION'], srs_test['NEW_X'], srs_test['NEW_Y'] = None, None, None
+	else:
+		srs_new_loc, srs_new_xy = [], []
 
-	for i in range(len(srs_test)):
-		new_loc, new_xy = rot_location(srs_test['LOCATION'].values[i], t_start_srs, t_end_srs)
-		srs_new_loc.append(new_loc)
-		srs_new_xy.append(new_xy)
+		for i in range(len(srs_test)):
+			new_loc, new_xy = rot_location(srs_test['LOCATION'].values[i], t_start_srs, t_end_srs)
+			srs_new_loc.append(new_loc)
+			srs_new_xy.append(new_xy)
 
-	srs_test['NEW_LOCATION'] = srs_new_loc
-	srs_test['NEW_X'], srs_test['NEW_Y'] = np.array(srs_new_xy)[:,0], np.array(srs_new_xy)[:,1]
+		srs_test['NEW_LOCATION'] = srs_new_loc
+		srs_test['NEW_X'], srs_test['NEW_Y'] = np.array(srs_new_xy)[:,0], np.array(srs_new_xy)[:,1]
+	
 	return srs_test
 
 
@@ -182,20 +186,24 @@ def find_AR_nmb_sol_mon(events_today, srs_test):
 
 
 	'''
-	positions = []
-	r_search = 120.
+	if len(events_today) == 0 or len(srs_test) == 0:
+		events_today['NOAA_NBR'] = None
+	else:
 
-	for i in range(len(events_today)):
-		r = distance(events_today['new_x'].values[i], srs_test['NEW_X'].values, events_today['new_y'].values[i], srs_test['NEW_Y'].values)
-		#print(i, np.min(r))
-		if np.min(r) < r_search:
-			r_index = np.where(r == np.min(r))[0][0]
+		positions = []
+		r_search = 120.
 
-			positions.append(srs_test['NMBR'][r_index])
-		else:
-			positions.append('no_noaa')
+		for i in range(len(events_today)):
+			r = distance(events_today['new_x'].values[i], srs_test['NEW_X'].values, events_today['new_y'].values[i], srs_test['NEW_Y'].values)
+			#print(i, np.min(r))
+			if np.min(r) < r_search:
+				r_index = np.where(r == np.min(r))[0][0]
 
-	events_today['NOAA_NBR'] = positions
+				positions.append(srs_test['NMBR'][r_index])
+			else:
+				positions.append('no_noaa')
+
+		events_today['NOAA_NBR'] = positions
 	return events_today
 
 
@@ -246,12 +254,19 @@ def get_summary(date_search):
 
 	other_nbr = []
 	for i in range(len(events_today)):
-		other_nbr.append(events_today['Derived Position'][i].split()[2])
+		pos = events_today['Derived Position'][i].split()
+		if len(pos) > 1:
+			other_nbr.append(pos[2])
+		else:
+			other.append(None)
 
 	other_nbr_day = []
 	for i in range(len(events_yday)):
-		#print(events_yday['Derived Position'][i])
-		other_nbr_day.append(events_yday['Derived Position'][i].split()[2])
+		pos = events_yday['Derived Position'][i].split()
+		if len(pos) > 1:
+			other_nbr_day.append(pos[2])
+		else:
+			other_nbr_day.append(None)
 
 
 	#so to summarize events['NOAA_NMBR'] is the calculated position and events['NMBR'] are from LMSAL
