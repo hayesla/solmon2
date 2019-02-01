@@ -18,7 +18,13 @@ time_now = datetime.datetime.utcnow()
 
 
 #maglc
-def get_gong_mag():
+def get_gong_mag(time_now, out_dir):
+
+
+
+	if not os.path.exists(out_dir):
+		os.mkdir(out_dir)
+
 	url = 'gong2.nso.edu'
 
 	#first do mag gong
@@ -44,7 +50,7 @@ def get_gong_mag():
 			file_paths.append(list_of_files)
 			#print(p, list_of_files)
 		except:
-			print('error!', p)
+			print('still searching!', p)
 
 	list_of_files = sorted(np.concatenate(file_paths), key = lambda x: int(x[-12:-8]))
 	latest_file = list_of_files[-1]
@@ -56,12 +62,18 @@ def get_gong_mag():
 
 
 	full_path = 'ftp://'+url+latest_file
-	urllib.request.urlretrieve(full_path, out_dir + latest_file.split('/')[-1])
-	if os.path.exists(out_dir + latest_file.split('/')[-1]):
-		print('success!')
+	urllib.request.urlretrieve(full_path, out_dir + 'gong_mag_'+time_now.strftime('%Y%m%d')+'.fits')#latest_file.split('/')[-1])
+	if os.path.exists(out_dir + 'gong_mag_'+time_now.strftime('%Y%m%d')+'.fits'): #latest_file.split('/')[-1]):
+		print('gong_mag success!')
 
 #igram
-def get_gong_igram():
+def get_gong_igram(time_now, out_dir):
+
+
+	if not os.path.exists(out_dir):
+		os.mkdir(out_dir)
+
+
 	url = 'gong2.nso.edu'
 
 	#first do mag gong
@@ -87,7 +99,7 @@ def get_gong_igram():
 			file_paths.append(list_of_files)
 			#print(p, list_of_files)
 		except:
-			print('error!', p)
+			print('still searching!', p)
 
 	list_of_files = sorted(np.concatenate(file_paths), key = lambda x: int(x[-12:-8]))
 	latest_file = list_of_files[-1]
@@ -99,6 +111,6 @@ def get_gong_igram():
 
 
 	full_path = 'ftp://'+url+latest_file
-	urllib.request.urlretrieve(full_path, out_dir + latest_file.split('/')[-1])
-	if os.path.exists(out_dir + latest_file.split('/')[-1]):
-		print('success!')
+	urllib.request.urlretrieve(full_path, out_dir + 'gong_igram_'+time_now.strftime('%Y%m%d')+'.fits')#latest_file.split('/')[-1])
+	if os.path.exists(out_dir + 'gong_igram_'+time_now.strftime('%Y%m%d')+'.fits'):#latest_file.split('/')[-1]):
+		print('gong_igram success!')

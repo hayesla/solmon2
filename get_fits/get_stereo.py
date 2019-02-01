@@ -12,9 +12,9 @@ from fits_utils import *
 time_now = datetime.datetime.utcnow()
 
 
-def get_stereo(satellite = 'ahead'):
+def get_stereo(time_now, out_dir, satellite = 'ahead'):
 	#check or make directory to save
-	out_dir = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/STEREO'+satellite[0]+'/'
+	#out_dir = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/STEREO'+satellite[0]+'/'
 	if not os.path.exists(out_dir):
 		os.mkdir(out_dir)
 
@@ -27,7 +27,9 @@ def get_stereo(satellite = 'ahead'):
 		output_path2 = out_dir + latest_file.split('/')[-1]
 
 		urllib.request.urlretrieve(latest_file, output_path2)
+		if os.path.exists(output_path2):
+			print('stereo success!')
 
 
-get_stereo(satellite = 'ahead')
-get_stereo(satellite = 'behind')
+#get_stereo(satellite = 'ahead')
+#get_stereo(satellite = 'behind')

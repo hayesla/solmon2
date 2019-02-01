@@ -21,7 +21,7 @@ def check_servers_online(website_url):
 
 
 #this needs to be fixed!
-def get_noaa_probs(summary):
+def get_noaa_probs():
 	url_noaa = 'http://services.swpc.noaa.gov/text/3-day-solar-geomag-predictions.txt'
 	cc = check_servers_online(url_noaa)
 	if cc == 1:

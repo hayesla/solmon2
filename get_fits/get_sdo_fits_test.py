@@ -1,13 +1,17 @@
 from sunpy.net import Fido, attrs as a, vso
 import datetime
 from astropy import units as u
+import os
 
-
-def get_aia_fido(output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/{instrument}/'):
+def get_aia_fido(time_now, out_dir):#output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/{instrument}/'):
 	
-	#get utc time rounded down to the previous hour
-	time_now = datetime.datetime.utcnow().replace(microsecond = 0, second = 0, minute = 0)
 
+	if not os.path.exists(out_dir):
+		os.mkdir(out_dir)
+
+	#get utc time rounded down to the previous hour
+	#time_now = datetime.datetime.utcnow().replace(microsecond = 0, second = 0, minute = 0)
+	time_now = time_now.replace(microsecond = 0, second = 0, minute = 0)
 	#time to search for available fits files
 	search_time = a.Time( (time_now-datetime.timedelta(hours  = 10)).strftime('%Y/%m/%d %H:%M'), time_now.strftime('%Y/%m/%d %H:%M') )
 
@@ -20,8 +24,10 @@ def get_aia_fido(output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/
 
 	#download them into output_path
 	#download aia hold the path to download file path
-	download_aia = Fido.fetch(aia_files, path = output_path)
-	return download_aia
+	download_aia = Fido.fetch(aia_files, path = out_dir)
+	if len(download_aia) == 10:
+		print('sdo/aia success!')
+	#return download_aia
 
 
 

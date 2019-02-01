@@ -7,12 +7,14 @@ from bs4 import BeautifulSoup
 from sunpy.net import jsoc
 import drms
 
-def manually_get_from_site():
-	output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/HMI/'
+def get_hmi_m(time_now, output_path):
+	if not os.path.exists(output_path):
+		os.mkdir(output_path)
+	#output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/HMI/'
 	#get utc time rounded down to the previous hour
-	time_now = datetime.datetime.utcnow().replace(microsecond = 0, second = 0, minute = 0)
+	#time_now = datetime.datetime.utcnow().replace(microsecond = 0, second = 0, minute = 0)
 	#time_now = time_now2 - datetime.timedelta(hours = 2)
-
+	time_now = time_now.replace(microsecond = 0, second = 0, minute = 0)
 	#time to search for available fits files
 
 	base_url = 'http://jsoc.stanford.edu/data/hmi/fits/'
@@ -36,6 +38,8 @@ def manually_get_from_site():
 	output_path2 = output_path + link.get('href')
 	#output_path2 = output_path + fits_links[-1].split('/')[-1]
 	urllib.request.urlretrieve(fits_links[-1], output_path2)
+	if os.path.exists(output_path2):
+		print('hmi_success')
 
 
 def hmi_fido(output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/HMI/'):
@@ -45,7 +49,7 @@ def hmi_fido(output_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits
 	dow = Fido.fetch(res, output_path)
 
 
-def new_hmi_jsoc():
+def new_hmi_jsoc(output_path):
 
 	#get utc time rounded down to the previous hour
 	time_now = datetime.datetime.utcnow().replace(microsecond = 0, second = 0, minute = 0)
