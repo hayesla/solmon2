@@ -5,13 +5,11 @@ import urllib
 from bs4 import BeautifulSoup 
 import os
 
-#output directory
-out_dir = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/SWAP/'
-if not os.path.exists(out_dir):
-	os.mkdir(out_dir)
 
 
 def get_swap(time_now, out_dir):
+	if not os.path.exists(out_dir):
+		os.mkdir(out_dir)
 	#get utc time rounded down to the previous hour
 	#time_now = datetime.datetime.utcnow().replace(microsecond = 0, second = 0, minute = 0)
 	time_now = time_now.replace(microsecond = 0, second = 0, minute = 0)

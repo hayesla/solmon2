@@ -11,10 +11,7 @@ import numpy as np
 
 
 
-#output directory
-out_dir = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/XRT/'
-if not os.path.exists(out_dir):
-	os.mkdir(out_dir)
+
 
 #get utc time rounded down to the previous hour
 time_now = datetime.datetime.utcnow().replace(microsecond = 0, second = 0, minute = 0)

@@ -27,7 +27,7 @@ def check_servers_online(website_url):
 def get_srs_from_datetime(date):
 
 
-	output_path_test = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/data/'+date.strftime('%Y/%m%/%d') + '/meta'
+	output_path_test = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/data/'+date.strftime('%Y/%m%/%d') + '/meta'
 	if not os.path.exists(output_path_test):
 		os.makedirs(output_path_test)
 	server_path = 'ftp://ftp.swpc.noaa.gov/pub/warehouse'

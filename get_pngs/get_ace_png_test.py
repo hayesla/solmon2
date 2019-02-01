@@ -47,7 +47,7 @@ class date_struct():
 
 ##############################################
 #	Actual code part 						 #
-y##############################################
+##############################################
 def get_ace_pngs(date, output_path):
 	#date_time = date_struct()
 	#date = date_time.date

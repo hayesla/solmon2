@@ -16,8 +16,8 @@ from get_eve_png_test import get_eve_pngs
 from get_all_fits import get_all_fits
 #--------------------------------------------#
 #date of interest
-date_search = datetime.datetime.strptime('2017-09-10 19:30', '%Y-%m-%d %H:%M')
-#date_search = datetime.datetime.utcnow() - datetime.timedelta(days = 1)
+#date_search = datetime.datetime.strptime('2017-09-10 19:30', '%Y-%m-%d %H:%M')
+date_search = datetime.datetime.utcnow() #- datetime.timedelta(days = 1)
 
 #make directories to store data
 output_path = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/data/'+date_search.strftime('%Y/%m/%d/')

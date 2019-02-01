@@ -9,9 +9,6 @@ import numpy as np
 from fits_utils import *
 import ftplib
 
-out_dir = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/GONG/'
-if not os.path.exists(out_dir):
-	os.mkdir(out_dir)
 
 
 time_now = datetime.datetime.utcnow()

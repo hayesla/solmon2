@@ -56,7 +56,7 @@ def get_noaa_probs():
 def get_mcstat_forecast(mcintosh):
 
 
-	flarehist_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/get_forecasts/'
+	flarehist_path = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_forecasts/'
 	flarehist_file = os.path.join(flarehist_path, 'flarehist.txt')
 
 	flarehist_data = pd.read_csv(flarehist_file, skiprows = 14, delim_whitespace = True)
@@ -93,7 +93,7 @@ def get_mcevol_forecast(mcintosh_1, mcintosh_2):
 	Pen = np.array(['X', 'R', 'S', 'A','H', 'K'])
 	Comp = np.array(['X', 'O', 'I' , 'C'])
 
-	flarehist_path = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/get_forecasts/'
+	flarehist_path = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_forecasts/'
 	flarehist_file = os.path.join(flarehist_path, 'mcint_evol_flarehist.sav')
 
 	flarehist_data = readsav(flarehist_file)

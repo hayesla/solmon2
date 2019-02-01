@@ -10,10 +10,7 @@ from astropy.io import fits
 from sunpy import map
 import matplotlib.pyplot as plt 
 
-#output directory
-out_dir = '/Users/admin/Documents/solarmonitor_2_0/sol_mon/fits_tests/HALPHA/'
-if not os.path.exists(out_dir):
-	os.mkdir(out_dir)
+
 
 #date of interest
 time_now = datetime.datetime.utcnow()

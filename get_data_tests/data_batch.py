@@ -83,8 +83,7 @@ def put_srs_in_df(srs_test):
 
 	data_srs = np.array([x.split() for x in srs_test[ind_start+2:ind_end]])
 	if data_srs[0][0] == 'NONE':
-		#data_srs = np.array([len(header_srs)*['NONE']])
-		data_srs2 = None
+		data_srs = None
 	data_srs2 = np.array([x.split() for x in srs_test[ind_end+2:ind_end_end]])
 	if data_srs2[0][0] == 'NONE':
 		data_srs2 = None
