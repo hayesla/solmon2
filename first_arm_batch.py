@@ -69,8 +69,6 @@ get_goes_plots(date_search, png_path)
 get_ace_pngs(date_search, png_path)
 get_eve_pngs(date_search, png_path)
 
-
-
 get_all_fits(date_search, fits_path)
 
 

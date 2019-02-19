@@ -258,7 +258,7 @@ def get_summary(date_search, out_dir):
 		if len(pos) > 1:
 			other_nbr.append(pos[2])
 		else:
-			other.append(None)
+			other_nbr.append(None)
 
 	other_nbr_day = []
 	for i in range(len(events_yday)):
