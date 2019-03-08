@@ -292,8 +292,12 @@ def get_summary(date_search, out_dir):
 			y = pd.Series(index = t.index)
 		else:
 			y = pd.Series(y.values[0], index = t.index)
-		f_t = list(events_today[events_today['NMBR'] == t['NMBR']]['GOES Class'].values)
-		f_y = list(events_yday[events_yday['NMBR'] == t['NMBR']]['GOES Class'].values)
+		f_t = []
+		f_y = []
+		if len(events_today) > 0:
+			f_t = list(events_today[events_today['NMBR'] == t['NMBR']]['GOES Class'].values)
+		if len(events_yday) > 0:
+			f_y = list(events_yday[events_yday['NMBR'] == t['NMBR']]['GOES Class'].values)
 
 
 		ar_noaa.append('1' + t['NMBR'])
