@@ -284,7 +284,10 @@ def get_summary(date_search, out_dir):
 
 	# Now put all the info into a summary Dataframe - similar to summary structrue in IDL version
 
-	ar_noaa, latest_pos, latest_loc, hale_t, hale_y, mcintosh_t, mcintosh_y, area_t, area_y, no_sunspots_t, no_sunspots_y, flares_t, flares_y = [], [], [], [], [], [], [], [], [], [], [], [], []
+	date_str, ar_noaa, latest_pos, latest_loc, hale_t, hale_y, hale_t_alp, hale_y_alp, mcintosh_t, mcintosh_y, area_t, area_y, \
+	no_sunspots_t, no_sunspots_y, flares_t, flares_y, flares_t_st, flares_t_gev, flares_y_st, flares_y_gev \
+	 = [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [],[]
+
 	for i in range(len(srs_today)):
 		t = srs_today.loc[i]
 		y = srs_yday.loc[np.where(srs_yday['NMBR'] == t['NMBR'])[0]]
@@ -292,19 +295,24 @@ def get_summary(date_search, out_dir):
 			y = pd.Series(index = t.index)
 		else:
 			y = pd.Series(y.values[0], index = t.index)
-		f_t = []
-		f_y = []
+		f_t, f_t_st, f_t_gev = [], [], []
+		f_y, f_y_st, f_y_gev = [], [], []
 		if len(events_today) > 0:
 			f_t = list(events_today[events_today['NMBR'] == t['NMBR']]['GOES Class'].values)
+			f_t_st = list(events_today[events_today['NMBR'] == t['NMBR']]['Start'].values)
+			f_t_gev = list(events_today[events_today['NMBR'] == t['NMBR']]['EName'].values)
 		if len(events_yday) > 0:
 			f_y = list(events_yday[events_yday['NMBR'] == t['NMBR']]['GOES Class'].values)
-
+			f_y_st = list(events_yday[events_yday['NMBR'] == t['NMBR']]['Start'].values)
+			f_y_gev = list(events_yday[events_yday['NMBR'] == t['NMBR']]['EName'].values)
 
 		ar_noaa.append('1' + t['NMBR'])
 		latest_pos.append(t['NEW_LOCATION'])
 		latest_loc.append((int(t['NEW_X']), int(t['NEW_Y'])))
 		hale_t.append(t['MAG'])
 		hale_y.append(y['MAG'])
+		hale_t_alp.append(t['MAG_AL'])
+		hale_y_alp.append(y['MAG_AL'])
 		mcintosh_t.append(t['Z'])
 		mcintosh_y.append(y['Z'])
 		area_t.append(t['AREA'])
@@ -313,12 +321,19 @@ def get_summary(date_search, out_dir):
 		no_sunspots_y.append(y['NN'])
 		flares_t.append(f_t)
 		flares_y.append(f_y)
+		flares_t_st.append(f_t_st)
+		flares_t_gev.append(f_t_gev)
+		flares_y_st.append(f_y_st)
+		flares_y_gev.append(f_y_gev)
+		date_str.append(date_search.strftime('%Y/%m/%d %H:%M:%S'))
 
 	summary_dict = {'AR_NUM' : ar_noaa,
 					'LATEST_POS' : latest_pos,
 					'LATEST_LOC' : latest_loc,
 					'HALE_TODAY' : hale_t,
 					'HALE_YDAY' :  hale_y,
+					'HALE_TODAY_AL' : hale_t_alp,
+					'HALE_YDAY_AL' :  hale_y_alp,
 					'MCINTOSH_TODAY': mcintosh_t,
 					'MCINTOSH_YDAY' : mcintosh_y,
 					'AREA_T' : area_t, 
@@ -326,11 +341,16 @@ def get_summary(date_search, out_dir):
 					'NO_SUNSPOT_T' : no_sunspots_t, 
 					'NO_SUNSPOT_Y' : no_sunspots_y, 
 					'FLARES_T' : flares_t, 
-					'FLARES_Y' : flares_y}
+					'FLARES_Y' : flares_y, 
+					'FLARES_T_TS': flares_t_st, 
+					'FLARES_T_GEV': flares_t_gev,
+					'FLARES_Y_TS': flares_y_st,
+					'FLARES_Y_GEV': flares_y_gev,
+					'DATE_SEARCH': date_str}
 
 	summary = pd.DataFrame(summary_dict).replace(np.nan, '')
 	#print(summary)
-	return(summary)
+	return summary
 
 
 #----------------------------------------#
