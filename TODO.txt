@@ -1,0 +1,26 @@
+Solarmonitor 2.0 TODOs
+
+get_data - includes all summary and meta data
+---------------------------------------------
+
+- make a dataframe with all events
+
+- maybe choose time of day all is run to be consistent
+
+
+
+
+get_fits - includes downloading all fits files
+----------------------------------------------
+
+
+get_pngs - includes getting pngs GOES plots etc
+-----------------------------------------------
+
+
+get_forecasts - includes getting forecasts for flares
+-----------------------------------------------------
+
+
+make_plots - includes making all plots, incl forcast ones
+---------------------------------------------------------
