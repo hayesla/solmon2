@@ -22,6 +22,14 @@ def check_servers_online(website_url):
 
 #this needs to be fixed!
 def get_noaa_probs():
+	"""
+	Gets the latest NOAA forecasts from the online text file
+
+	
+
+
+
+	"""
 	url_noaa = 'http://services.swpc.noaa.gov/text/3-day-solar-geomag-predictions.txt'
 	cc = check_servers_online(url_noaa)
 	if cc == 1:
@@ -54,7 +62,32 @@ def get_noaa_probs():
 
 
 def get_mcstat_forecast(mcintosh):
+	"""
+	Calculates flare probabilities based on NOAA/SEC data from Nov 1988 - June 1996 
+	Assumes flare statistics are Poisson distributed based on Gallagher et al. 2002 
 
+	Parameters
+	----------
+	mcintosh : str
+		McIntosh classification of AR to find associated flare probabilities
+
+	Returns
+	-------
+	c_prob : float
+		probability of C class flare
+	m_prob : float
+		probability of M class flare
+	x_prob : float
+		probability of X class flare
+
+	Notes
+	-----
+	See Gallagher, P. T., Moon, Y.-J., Wang, H., Solar Physics, 209, 171, (2002)
+		Bloomfield et al., 2012, The Astrophysical Journal Letters, 747, L41
+
+	Requires the text file 'flarehist.txt'
+
+	"""
 
 	flarehist_path = '/Users/laurahayes/Documents/solarmonitor2_0/solmon2/get_forecasts/'
 	flarehist_file = os.path.join(flarehist_path, 'flarehist.txt')
@@ -86,6 +119,34 @@ def get_mcstat_forecast(mcintosh):
 
 
 def get_mcevol_forecast(mcintosh_1, mcintosh_2):
+	"""
+
+	Calculates flare probabilities from flaring rates using the 24hr evolution of the McIntosh Class
+	From McCloskey et al. 2017
+
+	Parameters
+	----------
+	mcintosh_1 : str
+		McIntosh classification 24 hours earlier
+	mcintosh_2 : str
+		McIntosh classification at current time 
+
+	Returns
+	-------
+	c_prob : float
+		probability of C class flare
+	m_prob : float
+		probability of M class flare
+	x_prob : float
+		probability of X class flare
+
+	Notes
+	-----
+
+	See McCloskey, A.E., Gallagher, P.T. & Bloomfield, D.S., Solar Physics, 291, 1711, (2016)
+	Requires the text file 'mcint_evol_flarehist.sav'
+
+	"""
 		
 
 	#Defining McIntosh Classifications
