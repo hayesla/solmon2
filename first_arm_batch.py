@@ -73,12 +73,12 @@ for i in range(len(summary)):
 	mc_stat.append(ms)
 
 
-# #this will cause issues
-# '''noaa_names, noaa_data = get_noaa_probs()
-# noaa_name, noaa_probs = [], []
-# for i in range(len(noaa_names)):
-# 	noaa_name.append(noaa_names[i][0])
-# 	noaa_probs.append(noaa_data[i])
+#this will cause issues
+noaa_names, noaa_data = get_noaa_probs()
+noaa_name, noaa_probs = [], []
+for i in range(len(noaa_names)):
+	noaa_name.append(noaa_names[i][0])
+	noaa_probs.append(noaa_data[i])
 
 
 summary['FORE_MCSTAT'] = mc_stat
